@@ -12,12 +12,6 @@ from twitterserver import *
 # Named global logger from config
 logger = logging.getLogger("garage")
 
-def shutdown_handler(signum, frame):
-    logger.critical("starting shutdown by %d" % signum)
-    garage_daemon.shutdown()
-    logger.critical("finished shutdown by %d" % signum)
-    return
-
 class GarageDaemon:
     def __init__(self):
         self.stdin_path = '/dev/null'
@@ -29,8 +23,8 @@ class GarageDaemon:
     
     def run(self):
         # signal handler can be set only in main thread
-        signal.signal(signal.SIGTERM, shutdown_handler)    
-        signal.signal(signal.SIGINT, shutdown_handler)    
+        signal.signal(signal.SIGTERM, self.shutdown)    
+        signal.signal(signal.SIGINT, self.shutdown)    
 
         self.door = GarageDoor()
         
@@ -51,13 +45,16 @@ class GarageDaemon:
             self.httpserver.join(2**31)
             pass
             
+        logger.critical("staring door shutdown, gpio cleanup")
         self.door.shutdown()
         return
-    
-    def shutdown(self):
-        self.httpserver.shutdown()
-        return
 
+    def shutdown(self, signum, frame):
+        logger.critical("starting shutdown by %d" % signum)
+        self.httpserver.shutdown()
+        logger.critical("finished shutdown by %d" % signum)
+        return
+    
 try:
     garage_daemon = GarageDaemon()
 
