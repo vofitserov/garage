@@ -3,6 +3,7 @@ from BaseHTTPServer import BaseHTTPRequestHandler
 from BaseHTTPServer import HTTPServer
 
 import urlparse
+import threading
 
 from config import *
 from door import *
@@ -70,4 +71,22 @@ class HTTPDoorServer(HTTPServer):
         HTTPServer.__init__(self, address, handler_class)
         self.door = door
         return
+
+class HTTPDoorController(threading.Thread):
+    def __init__(self, door):
+        threading.Thread.__init__(self)
+        logger.info("created http door controller")
+        self.door = door
+        return
     
+    def run(self):
+        logger.info("starting HTTP server: %s:%d" % (HTTP_HOST, HTTP_PORT))
+        self.httpserver = HTTPDoorServer(self.door, ("", HTTP_PORT), HTTPDoorHandler)
+        logger.info("starting serve forever...")
+        self.httpserver.serve_forever()
+        logger.info("...done serve forever")
+        return
+
+    def shutdown(self):
+        self.httpserver.shutdown()
+        return
