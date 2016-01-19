@@ -88,7 +88,7 @@ class TwitterServer(threading.Thread):
                 logger.info("twitter stream got: " + str(msg))
                 continue
             # logger.info("twitter stream got: " + str(msg))
-            text = msg['direct_message']['text'].lower()
+            text = msg['direct_message']['text'].lower().replace("\n", " ")
             screen_name = msg['direct_message']['sender']['screen_name']
             logger.info("twitter got direct message: \"%s\" from \"@%s\""
                         % (text, screen_name))

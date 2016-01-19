@@ -1,5 +1,6 @@
 
 import logging
+import logging.handlers
 
 # daemon log and lock
 LOGFILE = "/var/log/garage-daemon.log"
@@ -24,10 +25,10 @@ TWITTER_ACCOUNT = "vofitserov"
 TWITTER_CHECK = 60
 
 # how long garage door could remain opened
-MAX_OPEN = 60000 # 30 min
+MAX_OPEN = 30*60 # 30 min
 
 # send notification every N seconds.
-NOTIFY = 30 # 10 min
+NOTIFY = 10*60 # 10 min
 
 # silence notifications for N seconds each time.
 SILENCE = 2*60 # 2 hours
@@ -35,10 +36,11 @@ SILENCE = 2*60 # 2 hours
 logger = logging.getLogger("garage")
 logger.setLevel(logging.INFO)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-handler = logging.FileHandler(LOGFILE)
 
-#handler = logging.handlers.RotatingFileHandler(
-#                  LOGFILE, maxBytes=100000, backupCount=5)
+#handler = logging.FileHandler(LOGFILE)
+
+handler = logging.handlers.RotatingFileHandler(
+                  LOGFILE, maxBytes=100000, backupCount=5)
 
 handler.setFormatter(formatter)
 logger.addHandler(handler)
