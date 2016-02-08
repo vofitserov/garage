@@ -23,10 +23,10 @@ class TwitterNotifier(threading.Thread):
         self.auth = OAuth(
             self.oauth_token, self.oauth_secret,
             CONSUMER_KEY, CONSUMER_SECRET)
-        self.twitter = Twitter(auth=self.auth)
         return
     
     def notify(self):
+        self.twitter = Twitter(auth=self.auth)
         if self.door.check() and self.door.notify():
             reply = self.door.message()
             logger.info("twitter sending to %s \"%s\"" %
@@ -61,18 +61,15 @@ class TwitterServer(threading.Thread):
         self.auth = OAuth(
             self.oauth_token, self.oauth_secret,
             CONSUMER_KEY, CONSUMER_SECRET)
-        self.twitter_userstream = TwitterStream(
-            auth=self.auth,
-            domain='userstream.twitter.com')
-        self.twitter = Twitter(auth=self.auth)
         return
 
     def run(self):
-        logger.info("twitter checking commands every %d seconds" %
-                    TWITTER_CHECK)
         while True:
             try:
+                logger.info("twitter checking commands every %d seconds" %
+                            TWITTER_CHECK)
                 self.listen()
+                logger.info("twitter sleeping after listen")
                 time.sleep(TWITTER_CHECK)
             except TwitterHTTPError as e:
                 logger.error(str(e))
@@ -83,9 +80,16 @@ class TwitterServer(threading.Thread):
         return
 
     def listen(self):
+        self.twitter_userstream = TwitterStream(
+            auth=self.auth,
+            domain='userstream.twitter.com')
+        self.twitter = Twitter(auth=self.auth)
         for msg in self.twitter_userstream.user():
+            if 'hangup' in msg or 'timeout' in msg:
+                logger.info("twitter stream break:" + str(msg))
+                break
             if 'direct_message' not in msg:
-                logger.info("twitter stream got: " + str(msg))
+                logger.info("twitter not direct_message: " + str(msg))
                 continue
             # logger.info("twitter stream got: " + str(msg))
             text = msg['direct_message']['text'].lower().replace("\n", " ")

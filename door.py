@@ -84,17 +84,29 @@ class GarageDoor:
             now = time.time()
             self.initialized = True
             if self.is_opened():
-                self.last_opened = now
-                logger.info("door was opened, last closed %d secs ago" %
-                            int(now - self.last_closed))
+                if self.last_opened <= self.last_closed:
+                    self.last_opened = now
+                    logger.info("updated last open, last closed %d secs ago" %
+                                int(now - self.last_closed))
+                else:
+                    logger.info("repeated last open, last closed %d secs ago" %
+                                int(now - self.last_closed))
+                    pass
                 GPIO.output(RED_LED, True)
                 GPIO.output(GREEN_LED, False)
-            else:
-                self.last_closed = now
-                logger.info("door was closed, last opened %d secs ago" %
+                pass
+            if self.is_closed():
+                if self.last_closed <= self.last_opened:
+                    self.last_closed = now
+                    logger.info("updated last closed, last opened %d secs ago" %
                             int(now - self.last_opened))
+                else:
+                    logger.info("repeated last closed, last opened %d secs ago" %
+                            int(now - self.last_opened))
+                    pass
                 GPIO.output(RED_LED, False)
                 GPIO.output(GREEN_LED, True)
+                pass
             pass
         return
 

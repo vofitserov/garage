@@ -31,7 +31,7 @@ MAX_OPEN = 30*60 # 30 min
 NOTIFY = 10*60 # 10 min
 
 # silence notifications for N seconds each time.
-SILENCE = 2*60 # 2 hours
+SILENCE = 2*60*60 # 2 hours
 
 logger = logging.getLogger("garage")
 logger.setLevel(logging.INFO)

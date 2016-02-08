@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 
 import signal
+import sys
+import logging
 
 from daemon import runner
 
 from config import *
 from door import *
 from httpserver import *
-from twitterserver import *
+from tweetpyserver import *
+#from twitterserver import *
 
 # Named global logger from config
 logger = logging.getLogger("garage")
@@ -32,11 +35,11 @@ class GarageDaemon:
         self.httpserver.setDaemon(True)
         self.httpserver.start()
 
-        self.twitterserver = TwitterServer(self.door)
+        self.twitterserver = TweetpyServer(self.door)
         self.twitterserver.setDaemon(True)
         self.twitterserver.start()
 
-        self.twitternotifier = TwitterNotifier(self.door)
+        self.twitternotifier = TweetpyNotifier(self.door)
         self.twitternotifier.setDaemon(True)
         self.twitternotifier.start()
 
@@ -57,12 +60,17 @@ class GarageDaemon:
     
 try:
     garage_daemon = GarageDaemon()
-
-    #garage_daemon.run()
-
-    daemon_runner = runner.DaemonRunner(garage_daemon)
-    daemon_runner.daemon_context.files_preserve = [handler.stream]
-    daemon_runner.do_action()
+    if sys.argv[1] == "test":
+        stderrHandler = logging.StreamHandler(sys.stderr)
+        logger.addHandler(stderrHandler)
+        logger.info("running in test mode, logging to stderr")
+        garage_daemon.run()
+    else:
+        daemon_runner = runner.DaemonRunner(garage_daemon)
+        daemon_runner.daemon_context.files_preserve = [handler.stream]
+        daemon_runner.do_action()
+        pass
+    
 except Exception as e:
     logger.error("failed: \"%s\"" % str(e))
     pass
