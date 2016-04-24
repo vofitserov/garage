@@ -18,11 +18,16 @@ RELAY = 5     # output for 1 second relay
 
 # produced by twitter-oauth.py
 TWITTER_CREDS = "/usr/share/garage/twitter.oauth"
+TWITTER_PHRASES = "/usr/share/garage/phrases.txt"
 # FosterCityGarageDoor twitter app
 CONSUMER_KEY = "VhYw8id8h1TLp4EnL7bRPBnRa"
 CONSUMER_SECRET = "v6myWEFUaRJgUB7e05kPwmRnq60CUZ8RyHYOoe0imFP6KQReC0"
 TWITTER_ACCOUNT = "vofitserov"
-TWITTER_CHECK = 60
+TWITTER_CHECK = 30
+TWITTER_BREAK = 10*60
+TWITTER_NOTIFY = 30
+TWITTER_MONITOR = "fostercitydoor"
+TWITTER_PING = 60*60
 
 # how long garage door could remain opened
 MAX_OPEN = 30*60 # 30 min

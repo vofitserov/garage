@@ -10,6 +10,7 @@ from config import *
 from door import *
 from httpserver import *
 from tweetpyserver import *
+
 #from twitterserver import *
 
 # Named global logger from config
@@ -35,7 +36,7 @@ class GarageDaemon:
         self.httpserver.setDaemon(True)
         self.httpserver.start()
 
-        self.twitterserver = TweetpyServer(self.door)
+        self.twitterserver = TweetpyStreamer(self.door)
         self.twitterserver.setDaemon(True)
         self.twitterserver.start()
 
