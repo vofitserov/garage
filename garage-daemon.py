@@ -11,8 +11,6 @@ from door import *
 from httpserver import *
 from tweetpyserver import *
 
-#from twitterserver import *
-
 # Named global logger from config
 logger = logging.getLogger("garage")
 
