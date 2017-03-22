@@ -27,7 +27,7 @@ TWITTER_CHECK = 30
 TWITTER_BREAK = 10*60
 TWITTER_NOTIFY = 30
 TWITTER_MONITOR = "fostercitydoor"
-TWITTER_PING = 60*60
+TWITTER_PING = 10000*60*60
 
 # how long garage door could remain opened
 MAX_OPEN = 30*60 # 30 min
