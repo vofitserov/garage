@@ -206,7 +206,7 @@ class TweetpyStreamer(threading.Thread):
             reply = self.door.status().replace("<br>", " ")
             pass
         if text.find("drive") == 0:
-            reply = self.get_tesla().drive().replace("<br", " ")
+            reply = self.get_tesla().drive().replace("<br>", " ")
             pass
         if text.find("charge") == 0:
             reply = self.get_tesla().charge().replace("<br>", " ")
