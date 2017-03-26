@@ -126,15 +126,20 @@ class Tesla:
         state = self.get_charge_state()
         charge_str = "tesla<br>"
         #"as of %d seconds ago<br>" % int(time.time() - state["timestamp"]/1000.0)
-        charge_str += "battery range is %.1f miles<br>" % state["battery_range"]
-        charge_str += "%.0f%% full<br>" % state["battery_level"]
-        charge_str += "charging is %s<br>" % state["charging_state"]
+        charge_str += "range is %.1f miles<br>" % \
+                      state["battery_range"]
+        charge_str += "battery is %.0f%% full<br>" % \
+                      state["battery_level"]
+        charge_str += "charging is %s<br>" % \
+                      state["charging_state"]
         if state["charge_port_door_open"]:
-            charge_str += "charge port door is open<br>"
+            charge_str += "charge port is opened<br>"
         else:
-            charge_str += "charge port door is closed<br>"
+            charge_str += "charge port is closed<br>"
             pass
-        charge_str += "%.0f seconds to full charge<br>" % state["time_to_full_charge"]
+        if state["time_to_full_charge"] > 0:
+            charge_str += "%.0f seconds to full charge<br>" % \
+                        state["time_to_full_charge"]
         return charge_str
 
 class TeslaGarage:

@@ -203,13 +203,13 @@ class TweetpyStreamer(threading.Thread):
             reply = self.door.silence()
             pass
         if text.find("status") == 0:
-            reply = self.door.status().replace("<br>", " ")
+            reply = self.door.status().replace("<br>", ", ")
             pass
         if text.find("drive") == 0:
-            reply = self.get_tesla().drive().replace("<br>", " ")
+            reply = self.get_tesla().drive().replace("<br>", ", ")
             pass
         if text.find("charge") == 0:
-            reply = self.get_tesla().charge().replace("<br>", " ")
+            reply = self.get_tesla().charge().replace("<br>", ", ")
             pass
         if text.find("help") == 0:
             reply = "Available commands are: close, stop/silence, status, drive or charge."
