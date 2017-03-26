@@ -68,14 +68,14 @@ class Tesla:
     # shift_state': None
     def drive(self):
         state = self.get_drive_state()
-        drive_str = "tesla<br>"
+        drive_str = "tesla "
         #"as of %d seconds ago<br>" % int(time.time() - state["timestamp"]/1000.0)
-        url = "http://maps.google.com/maps?z=12&t=m&q=loc:%f+%f" % \
-              (state["latitude"], state["longitude"])
-        drive_str += "located at %s<br>" % (url)
         if state["speed"]:
             drive_str += "current speed is %.1f mph<br>" % state["speed"]
             pass
+        url = "http://maps.google.com/maps?z=12&t=m&q=loc:%f+%f" % \
+              (state["latitude"], state["longitude"])
+        drive_str += "located at %s<br>" % (url)
         return drive_str
 
 
@@ -124,7 +124,7 @@ class Tesla:
     # charge_miles_added_rated': 28.0
     def charge(self):
         state = self.get_charge_state()
-        charge_str = "tesla<br>"
+        charge_str = "tesla "
         #"as of %d seconds ago<br>" % int(time.time() - state["timestamp"]/1000.0)
         charge_str += "range is %.1f miles<br>" % \
                       state["battery_range"]
