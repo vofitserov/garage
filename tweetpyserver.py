@@ -206,10 +206,10 @@ class TweetpyStreamer(threading.Thread):
             reply = self.door.status().replace("<br>", " ")
             pass
         if text.find("drive") == 0:
-            reply = self.get_tesla().drive()
+            reply = self.get_tesla().drive().replace("<br", " ")
             pass
         if text.find("charge") == 0:
-            reply = self.get_tesla().charge()
+            reply = self.get_tesla().charge().replace("<br>", " ")
             pass
         if text.find("help") == 0:
             reply = "Available commands are: close, stop/silence, status, drive or charge."

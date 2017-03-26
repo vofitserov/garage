@@ -72,7 +72,7 @@ class Tesla:
         #"as of %d seconds ago<br>" % int(time.time() - state["timestamp"]/1000.0)
         url = "http://maps.google.com/maps?z=12&t=m&q=loc:%f+%f" % \
               (state["latitude"], state["longitude"])
-        drive_str += "located at <a href=\"%s\"%s</a><br>" % (url, url)
+        drive_str += "located at %s<br>" % (url)
         if state["speed"]:
             drive_str += "current speed is %.1f mph<br>" % state["speed"]
             pass
