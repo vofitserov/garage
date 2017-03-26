@@ -123,13 +123,21 @@ class TweetpyListener(StreamListener):
         logger.info("tweetpy on_limit: " + str(track))
         return
 
+class TeslaUnknown:
+    def drive(self):
+        return "tesla drive status is unknown"
+    def charge(self):
+        return "tesla charge status is unknown"
+
 class TweetpyStreamer(threading.Thread):
-    def __init__(self, door):
+    def __init__(self, door, garage):
         threading.Thread.__init__(self)
         logger.info("tweetpy creating server for %s using %s" %
                     (TWITTER_ACCOUNT, TWITTER_CREDS))
         (self.oauth_token, self.oauth_secret) = read_token_file(TWITTER_CREDS)
         self.door = door
+        self.tesla = None
+        self.garage = garage
         self.auth = OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
         self.auth.set_access_token(self.oauth_token, self.oauth_secret)
         self.twitter = API(self.auth)
@@ -154,6 +162,22 @@ class TweetpyStreamer(threading.Thread):
                 pass
             pass
         return
+
+    def get_tesla(self):
+        if self.tesla: return self.tesla
+        try:
+            logger.info("tweetpy tesla getting token for garage")
+            token = self.garage.get_token()
+            logger.info("tweetpy tesla got %s token" % token.access_token)
+            vehicles = self.garage.get_vehicles()
+            logger.info("tweetpy tesla got %d vehicles" % len(vehicles))
+            self.tesla = vehicles[0]
+        except Exception as e:
+            logger.error("tweetpy tesla exception: " + str(e))
+            logger.info("tweetpy tesla sleeping 10 minutes after the error")
+            time.sleep(TWITTER_BREAK)
+            pass
+        return self.tesla if self.tesla else TeslaUnknown()
 
     def on_connect(self):
         logger.info("tweetpy successfully connected.")
@@ -181,8 +205,14 @@ class TweetpyStreamer(threading.Thread):
         if text.find("status") == 0:
             reply = self.door.status().replace("<br>", " ")
             pass
+        if text.find("drive") == 0:
+            reply = self.get_tesla().drive()
+            pass
+        if text.find("charge") == 0:
+            reply = self.get_tesla().charge()
+            pass
         if text.find("help") == 0:
-            reply = "Available commands are: close, stop/silence, status."
+            reply = "Available commands are: close, stop/silence, status, drive or charge."
             pass
         if text.find("awesome") != -1 or text.find("awsome") != -1:
             reply = "You sure are awesome!"

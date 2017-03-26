@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import signal
 import sys
@@ -10,6 +10,7 @@ from config import *
 from door import *
 from httpserver import *
 from tweetpyserver import *
+from tesla import *
 
 # Named global logger from config
 logger = logging.getLogger("garage")
@@ -29,12 +30,13 @@ class GarageDaemon:
         signal.signal(signal.SIGINT, self.shutdown)    
 
         self.door = GarageDoor()
+        self.garage = TeslaGarage(TESLA_LOGIN, TESLA_PASSWORD)
         
         self.httpserver = HTTPDoorController(self.door)
         self.httpserver.setDaemon(True)
         self.httpserver.start()
 
-        self.twitterserver = TweetpyStreamer(self.door)
+        self.twitterserver = TweetpyStreamer(self.door, self.garage)
         self.twitterserver.setDaemon(True)
         self.twitterserver.start()
 

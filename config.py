@@ -38,6 +38,10 @@ NOTIFY = 10*60 # 10 min
 # silence notifications for N seconds each time.
 SILENCE = 2*60*60 # 2 hours
 
+# Tesla login and keys
+TESLA_LOGIN = ""
+TESLA_PASSWORD = ""
+
 logger = logging.getLogger("garage")
 logger.setLevel(logging.INFO)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
