@@ -3,7 +3,7 @@ from unittest import TestCase
 from tesla import *
 
 class TestTesla(TestCase):
-    garage = TeslaGarage("vladimir@ofitserov.us", "dm9sb2R5YTE5NzI=\n")
+    garage = TeslaGarage("tesla login email", "base64 encoded tesla password")
     token = garage.get_token()
     print(token.access_token)
     vehicles = garage.get_vehicles()
