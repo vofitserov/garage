@@ -36,9 +36,10 @@ class GarageDaemon:
         self.httpserver.setDaemon(True)
         self.httpserver.start()
 
-        self.twitterserver = TweetpyStreamer(self.door, self.garage)
-        self.twitterserver.setDaemon(True)
-        self.twitterserver.start()
+        # Twitter Streaming API is discountinued.
+        #self.twitterserver = TweetpyStreamer(self.door, self.garage)
+        #self.twitterserver.setDaemon(True)
+        #self.twitterserver.start()
 
         self.twitternotifier = TweetpyNotifier(self.door)
         self.twitternotifier.setDaemon(True)

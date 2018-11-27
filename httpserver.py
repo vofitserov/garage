@@ -47,6 +47,13 @@ class HTTPDoorHandler(BaseHTTPRequestHandler):
         logger.info("do_GET done: %s" % self.path)
         return
 
+    def redirect(self):
+        # Respond with temporary redirect so browser continue sending requests. 
+        self.send_response(302)
+        self.send_header("Location", "/")
+        self.end_headers()
+        return
+    
     def log_message(self, format, *args):
         return logger.info(self.address_string() + " - " + (format % args))
 
@@ -63,9 +70,11 @@ class HTTPDoorHandler(BaseHTTPRequestHandler):
         params = urlparse.parse_qs(parsed.query)
         action = params["action"][0].lower() if "action" in params else ""
         if action == "open":
-            return self.respond(door.open())
+            door.open()
+            return self.redirect()
         elif action == "close":
-            return self.respond(door.close())
+            door.close()
+            return self.redirect()
         if door.is_opened():
             state = "opened."
         else:
