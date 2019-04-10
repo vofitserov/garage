@@ -9,7 +9,7 @@ from daemon import runner
 from config import *
 from door import *
 from httpserver import *
-from tweetpyserver import *
+from twitterserver import *
 from tesla import *
 
 # Named global logger from config
@@ -37,11 +37,11 @@ class GarageDaemon:
         self.httpserver.start()
 
         # Twitter Streaming API is discountinued.
-        #self.twitterserver = TweetpyStreamer(self.door, self.garage)
-        #self.twitterserver.setDaemon(True)
-        #self.twitterserver.start()
+        self.twitterserver = TwitterStreamer(self.door, self.garage)
+        self.twitterserver.setDaemon(True)
+        self.twitterserver.start()
 
-        self.twitternotifier = TweetpyNotifier(self.door)
+        self.twitternotifier = TwitterNotifier(self.door)
         self.twitternotifier.setDaemon(True)
         self.twitternotifier.start()
 

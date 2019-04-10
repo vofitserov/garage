@@ -23,11 +23,14 @@ TWITTER_PHRASES = "/usr/share/garage/phrases.txt"
 CONSUMER_KEY = "VhYw8id8h1TLp4EnL7bRPBnRa"
 CONSUMER_SECRET = "v6myWEFUaRJgUB7e05kPwmRnq60CUZ8RyHYOoe0imFP6KQReC0"
 TWITTER_ACCOUNT = "vofitserov"
-TWITTER_CHECK = 30
+# Check for twitter command every 60 seconds
+TWITTER_LISTEN = 60
+# Sleep in case we got twitter error (rate limit)
 TWITTER_BREAK = 10*60
+# Check for twitter notification every 30 seconds
 TWITTER_NOTIFY = 30
+
 TWITTER_MONITOR = "fostercitydoor"
-TWITTER_PING = 10000*60*60
 
 # how long garage door could remain opened
 MAX_OPEN = 30*60 # 30 min
