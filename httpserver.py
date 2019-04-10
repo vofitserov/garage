@@ -15,23 +15,36 @@ logger = logging.getLogger("garage")
 html = """
 <!DOCTYPE html>
 <html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <head>
 <meta http-equiv="refresh" content="10;url=/" />
+<style>
+.button {
+  background-color: #00bfff;
+  border: none;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 20px;
+  margin: 4px 2px;
+  cursor: pointer;
+  width: 160px; 
+  height: 60px;
+}
+</style>
 </head>
 <body>
-
+<center>
 <h1>%s</h1>
-
 <form action="/">
-  <input type="submit" name="action" value="Open">
-  <input type="submit" name="action" value="Close">
-  <input type="submit" name="action" value="Refresh">
+  <input type="submit" class="button" name="action" value="Open"><br><br>
+  <input type="submit" class="button" name="action" value="Close"><br><br>
+  <input type="submit" class="button" name="action" value="Refresh"><br><br>
 </form>
-
-<br>
 <br>
 %s
-
+</center>
 </body>
 </html>
 """
