@@ -61,8 +61,7 @@ class GarageDaemon:
         logger.critical("finished shutdown by %d" % signum)
         return
     
-#try:
-if True:
+try:
     garage_daemon = GarageDaemon()
     if sys.argv[1] == "test":
         stderrHandler = logging.StreamHandler(sys.stderr)
@@ -75,7 +74,7 @@ if True:
         daemon_runner.do_action()
         pass
     
-#except Exception as e:
-#    logger.error("failed: \"%s\"" % str(e))
-#    pass
+except Exception as e:
+    logger.error("failed: \"%s\"" % str(e))
+    pass
 

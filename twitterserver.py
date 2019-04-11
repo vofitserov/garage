@@ -32,7 +32,7 @@ class TwitterNotifier(threading.Thread):
                            consumer_secret=CONSUMER_SECRET,
                            access_token_key=self.oauth_token,
                            access_token_secret=self.oauth_secret,
-                           sleep_on_rate_limit=True)
+                           sleep_on_rate_limit=False)
         return
 
     def notify(self):
@@ -84,7 +84,7 @@ class TwitterStreamer(threading.Thread):
                            consumer_secret=CONSUMER_SECRET,
                            access_token_key=self.oauth_token,
                            access_token_secret=self.oauth_secret,
-                           sleep_on_rate_limit=True)
+                           sleep_on_rate_limit=False)
         self.account_user_id  = self.twitter.GetUser(screen_name=TWITTER_ACCOUNT).id
         logger.info("twitter expecting messages from %s" % self.account_user_id)
         messages = self.twitter.GetDirectMessagesEventsList()
