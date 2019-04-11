@@ -6,6 +6,7 @@ import threading
 
 import time
 import sys
+import base64
 
 TESLA_CLIENT_ID = "e4a9949fcfa04068f59abb5a658f2bac0a3428e4652315490b659d5ab3f35a9e"
 TESLA_CLIENT_SECRET = "c75f14bbadc8bee3a7594412c31416f8300256d7668ea7e6e7f06727bfb9d220"
@@ -138,8 +139,16 @@ class Tesla:
             charge_str += "charge port is closed<br>"
             pass
         if state["time_to_full_charge"] > 0:
-            charge_str += "%.0f seconds to full charge<br>" % \
+            charge_str += "%.2f hours to full charge<br>" % \
                         state["time_to_full_charge"]
+        return charge_str
+
+    def debug(self):
+        state = self.get_charge_state()
+        charge_str = ""
+        for (k,v) in state.items():
+            charge_str += "%s=%s, " % (k,v)
+            pass
         return charge_str
 
 class TeslaGarage:
@@ -167,7 +176,7 @@ class TeslaGarage:
         data["client_id"] = TESLA_CLIENT_ID
         data["client_secret"] = TESLA_CLIENT_SECRET
         data["email"] = self.email
-        data["password"] = self.password.decode("base64")
+        data["password"] = base64.b64decode(self.password)
         url = "%s/oauth/token" % self.host
         r = requests.post(url=url, data=data)
         self.token = TeslaToken(r.json())

@@ -1,9 +1,10 @@
 
-from BaseHTTPServer import BaseHTTPRequestHandler
-from BaseHTTPServer import HTTPServer
-from SocketServer import ThreadingMixIn
+from http.server import BaseHTTPRequestHandler
+from http.server import HTTPServer
+from socketserver import ThreadingMixIn
+from urllib.parse import urlparse
+from urllib.parse import parse_qs
 
-import urlparse
 import threading
 
 from config import *
@@ -12,7 +13,7 @@ from door import *
 # Named global logger from config
 logger = logging.getLogger("garage")
 
-html = """
+template = """
 <!DOCTYPE html>
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -56,7 +57,8 @@ class HTTPDoorHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
-        self.wfile.write(html % (message, door.status()))
+        html = template % (message, door.status())
+        self.wfile.write(bytes(html,'utf-8')) 
         logger.info("do_GET done: %s" % self.path)
         return
 
@@ -74,13 +76,13 @@ class HTTPDoorHandler(BaseHTTPRequestHandler):
         logger.info("do_GET started: %s" % self.path)
         # Instance of global GarageDoor object is on server.
         door = self.server.door
-        parsed = urlparse.urlparse(self.path)
+        parsed = urlparse(self.path)
         if parsed.path != '/':
             self.send_response(404)
             self.end_headers()
             logger.info("do_GET returned 404.")
             return
-        params = urlparse.parse_qs(parsed.query)
+        params = parse_qs(parsed.query)
         action = params["action"][0].lower() if "action" in params else ""
         if action == "open":
             door.open()

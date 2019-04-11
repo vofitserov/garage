@@ -1,7 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import signal
 import sys
+import traceback
 import logging
 
 from daemon import runner
@@ -60,7 +61,8 @@ class GarageDaemon:
         logger.critical("finished shutdown by %d" % signum)
         return
     
-try:
+#try:
+if True:
     garage_daemon = GarageDaemon()
     if sys.argv[1] == "test":
         stderrHandler = logging.StreamHandler(sys.stderr)
@@ -73,7 +75,7 @@ try:
         daemon_runner.do_action()
         pass
     
-except Exception as e:
-    logger.error("failed: \"%s\"" % str(e))
-    pass
+#except Exception as e:
+#    logger.error("failed: \"%s\"" % str(e))
+#    pass
 

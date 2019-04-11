@@ -22,7 +22,7 @@ def read_token_file(filename):
     return (access_token, access_secret)
 
 class TwitterNotifier(threading.Thread):
-    def __init__(self, door, garage):
+    def __init__(self, door):
         threading.Thread.__init__(self)
         logger.info("twitter creating notifier for %s using %s" %
                     (TWITTER_ACCOUNT, TWITTER_CREDS))
@@ -89,7 +89,7 @@ class TwitterStreamer(threading.Thread):
         logger.info("twitter expecting messages from %s" % self.account_user_id)
         messages = self.twitter.GetDirectMessagesEventsList()
         self.ids = [m.id for m in messages]
-        logger.info("twitter seen %d messages." % len(self.ids))
+        logger.info("twitter seen ids: %s" % str(self.ids[0:3]))
         return
 
     def run(self):
@@ -128,11 +128,10 @@ class TwitterStreamer(threading.Thread):
     def on_direct_message(self, status):
         text = status.text.lower().replace("\n", " ")
         sender_id = status.sender_id
-        logger.info("twitter got direct message: \"%s\" from \"@%s\""
+        logger.info("twitter got direct message: \"%s\" from \"%s\""
                     % (text, sender_id))
         if sender_id != self.account_user_id:
-            logger.info("twitter message from \"@%s\" is ignored." % sender_id)
-            logger.info("twitter expecting messages from %s" % self.account_user_id)
+            logger.info("twitter message from \"%s\" is ignored, expecting only \"%s\"" % (sender_id, self.account_user_id))
             return
         reply = "Unrecognized command, try \"status\" or \"help\""
         if text.find("close") == 0:
@@ -146,6 +145,9 @@ class TwitterStreamer(threading.Thread):
             pass
         if text.find("drive") == 0:
             reply = self.get_tesla().drive().replace("<br>", ", ")
+            pass
+        if text.find("charge") != -1 and text.find("debug") != -1:
+            reply = self.get_tesla().debug()
             pass
         if text.find("charge") == 0:
             reply = self.get_tesla().charge().replace("<br>", ", ")
@@ -176,5 +178,5 @@ class TwitterStreamer(threading.Thread):
                 pass
             pass
         self.ids = [m.id for m in messages]
-        logger.info("twitter seen %d messages." % len(self.ids))
+        logger.info("twitter seen ids: %s" % str(self.ids[0:3]))
         return
