@@ -31,12 +31,16 @@ class GarageDaemon:
         signal.signal(signal.SIGINT, self.shutdown)    
 
         self.door = GarageDoor()
-        self.garage = TeslaGarage(TESLA_LOGIN, TESLA_PASSWORD)
+        self.garage = TeslaGarage(TESLA_CREDS)
         
         self.httpserver = HTTPDoorController(self.door)
         self.httpserver.setDaemon(True)
         self.httpserver.start()
 
+        self.httpwatcher = HTTPDoorWatcher()
+        self.httpwatcher.setDaemon(True)
+        self.httpwatcher.start()
+        
         # Twitter Streaming API is discountinued.
         self.twitterserver = TwitterStreamer(self.door, self.garage)
         self.twitterserver.setDaemon(True)

@@ -6,6 +6,8 @@ from urllib.parse import urlparse
 from urllib.parse import parse_qs
 
 import threading
+import os
+import socket
 
 from config import *
 from door import *
@@ -99,6 +101,7 @@ class HTTPDoorHandler(BaseHTTPRequestHandler):
     pass
 
 class HTTPDoorServer(ThreadingMixIn, HTTPServer):
+    address_family = socket.AF_INET6
     def __init__(self, door, address, handler_class):
         HTTPServer.__init__(self, address, handler_class)
         self.door = door
@@ -113,7 +116,7 @@ class HTTPDoorController(threading.Thread):
     
     def run(self):
         logger.info("starting HTTP server: %s:%d" % (HTTP_HOST, HTTP_PORT))
-        self.httpserver = HTTPDoorServer(self.door, ("", HTTP_PORT), HTTPDoorHandler)
+        self.httpserver = HTTPDoorServer(self.door, ("::", HTTP_PORT), HTTPDoorHandler)
         logger.info("starting serve forever...")
         self.httpserver.serve_forever()
         logger.info("...done serve forever")
@@ -122,3 +125,34 @@ class HTTPDoorController(threading.Thread):
     def shutdown(self):
         self.httpserver.shutdown()
         return
+
+class HTTPDoorWatcher(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        logger.info("created garage.local watcher")
+        return
+
+    def check(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(10)
+        s.connect((LOCAL_HOST, 80))
+        s.close()
+        return
+
+    def run(self):
+        logger.info("watcher checking %s every %d seconds" %
+                    (LOCAL_HOST, LOCAL_CHECK))
+        while True:
+            try:
+                # sleep on start up, otherwise we'll hang in dns
+                time.sleep(LOCAL_CHECK)
+                self.check()
+                # logger.info("watcher successfully connected to %s" % LOCAL_HOST)
+            except Exception as e:
+                logger.error("watcher exception: " + str(e))
+                os.system("service avahi-daemon restart")
+                logger.info("watcher restarted avahi-daemon")
+                pass
+            pass
+        return
+

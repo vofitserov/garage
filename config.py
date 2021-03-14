@@ -23,12 +23,12 @@ TWITTER_PHRASES = "/usr/share/garage/phrases.txt"
 CONSUMER_KEY = "VhYw8id8h1TLp4EnL7bRPBnRa"
 CONSUMER_SECRET = "v6myWEFUaRJgUB7e05kPwmRnq60CUZ8RyHYOoe0imFP6KQReC0"
 TWITTER_ACCOUNT = "vofitserov"
-# Check for twitter command every 60 seconds
-TWITTER_LISTEN = 60
+# Check for twitter command every N seconds
+TWITTER_LISTEN = 120
 # Sleep in case we got twitter error (rate limit)
 TWITTER_BREAK = 10*60
-# Check for twitter notification every 30 seconds
-TWITTER_NOTIFY = 30
+# Check for twitter notification every 60 seconds
+TWITTER_NOTIFY = 60
 
 TWITTER_MONITOR = "fostercitydoor"
 
@@ -42,14 +42,15 @@ NOTIFY = 10*60 # 10 min
 SILENCE = 2*60*60 # 2 hours
 
 # Tesla login and keys
-TESLA_LOGIN = ""
-TESLA_PASSWORD = ""
+TESLA_CREDS = "/usr/share/garage/tesla.oauth"
+
+# Local http server watcher
+LOCAL_CHECK = 600
+LOCAL_HOST = "garage.local"
 
 logger = logging.getLogger("garage")
 logger.setLevel(logging.INFO)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-
-#handler = logging.FileHandler(LOGFILE)
 
 handler = logging.handlers.RotatingFileHandler(
                   LOGFILE, maxBytes=100000, backupCount=5)

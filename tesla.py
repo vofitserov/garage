@@ -11,11 +11,6 @@ import base64
 TESLA_CLIENT_ID = "e4a9949fcfa04068f59abb5a658f2bac0a3428e4652315490b659d5ab3f35a9e"
 TESLA_CLIENT_SECRET = "c75f14bbadc8bee3a7594412c31416f8300256d7668ea7e6e7f06727bfb9d220"
 
-#except requests.exceptions.RequestException as e:
-#sys.stderr.write("Failed to create new access token:" + str(e))
-#pass
-
-
 class TeslaToken:
     def __init__(self, input):
         self.access_token = input["access_token"]
@@ -40,6 +35,15 @@ class Tesla:
 
     def get_token_headers(self):
         return self.garage.get_token_headers()
+
+    def wake_up(self):
+        headers = self.get_token_headers()
+        if not headers: return None
+        url = "%s/api/1/vehicles/%s/wake_up" % \
+              (self.garage.host, self.id)
+        r = requests.post(url=url, headers=headers)
+        wake_up_state = r.json()["response"]
+        return wake_up_state
 
     def get_drive_state(self):
         headers = self.get_token_headers()
@@ -69,6 +73,7 @@ class Tesla:
     # shift_state': None
     def drive(self):
         state = self.get_drive_state()
+        if not state: return "failed to get tesla drive state"
         drive_str = "tesla "
         #"as of %d seconds ago<br>" % int(time.time() - state["timestamp"]/1000.0)
         if state["speed"]:
@@ -125,6 +130,7 @@ class Tesla:
     # charge_miles_added_rated': 28.0
     def charge(self):
         state = self.get_charge_state()
+        if not state: return "failed to get tesla charge state"
         charge_str = "tesla "
         #"as of %d seconds ago<br>" % int(time.time() - state["timestamp"]/1000.0)
         charge_str += "range is %.1f miles<br>" % \
@@ -144,15 +150,27 @@ class Tesla:
         return charge_str
 
     def debug(self):
-        state = self.get_charge_state()
-        charge_str = ""
+        state = self.wake_up()
+        debug_str = ""
         for (k,v) in state.items():
-            charge_str += "%s=%s, " % (k,v)
+            debug_str += "%s=%s, " % (k,v)
             pass
-        return charge_str
+        state = self.get_charge_state()
+        for (k,v) in state.items():
+            debug_str += "%s=%s, " % (k,v)
+            pass
+        return debug_str
 
+def read_creds_file(filename):
+    access_file = open(filename, "r")
+    access_email = access_file.readline().strip("\n")
+    access_password = access_file.readline().strip("\n")
+    access_file.close()
+    return (access_email, access_password)
+    
 class TeslaGarage:
-    def __init__(self, email, password):
+    def __init__(self, creds_file):
+        (email, password) = read_creds_file(creds_file)
         self.email = email
         self.password = password
         self.token = None

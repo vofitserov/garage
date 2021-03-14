@@ -28,14 +28,18 @@ class TwitterNotifier(threading.Thread):
                     (TWITTER_ACCOUNT, TWITTER_CREDS))
         (self.oauth_token, self.oauth_secret) = read_token_file(TWITTER_CREDS)
         self.door = door
-        self.twitter = Api(consumer_key=CONSUMER_KEY,
+        self.inited = False
+        return
+
+    def notify(self):
+        if not self.inited:
+            self.twitter = Api(consumer_key=CONSUMER_KEY,
                            consumer_secret=CONSUMER_SECRET,
                            access_token_key=self.oauth_token,
                            access_token_secret=self.oauth_secret,
                            sleep_on_rate_limit=False)
-        return
-
-    def notify(self):
+            self.inited = True
+            pass
         if self.door.check() and self.door.notify():
             reply = self.door.message()
             logger.info("twitter sending to %s \"%s\"" %
@@ -61,6 +65,15 @@ class TwitterNotifier(threading.Thread):
             pass
         return
 
+class TeslaUnknown:
+    def drive(self):
+        return "tesla is not available"
+    def charge(self):
+        return "tesla is not available"
+    def debug(self):
+        return "tesla is not available"
+
+
 class TwitterKiller(threading.Thread):
     def run(self):
         logger.critical("twitter asked to kill the server")
@@ -79,17 +92,9 @@ class TwitterStreamer(threading.Thread):
         (self.oauth_token, self.oauth_secret) = read_token_file(TWITTER_CREDS)
         self.door = door
         self.tesla = None
+        self.phrases = open(TWITTER_PHRASES, "r").readlines()
         self.garage = garage
-        self.twitter = Api(consumer_key=CONSUMER_KEY,
-                           consumer_secret=CONSUMER_SECRET,
-                           access_token_key=self.oauth_token,
-                           access_token_secret=self.oauth_secret,
-                           sleep_on_rate_limit=False)
-        self.account_user_id  = self.twitter.GetUser(screen_name=TWITTER_ACCOUNT).id
-        logger.info("twitter expecting messages from %s" % self.account_user_id)
-        messages = self.twitter.GetDirectMessagesEventsList()
-        self.ids = [m.id for m in messages]
-        logger.info("twitter seen ids: %s" % str(self.ids[0:3]))
+        self.inited = False
         return
 
     def run(self):
@@ -108,20 +113,24 @@ class TwitterStreamer(threading.Thread):
                 pass
             pass
         return
-
+    
     def get_tesla(self):
-        if self.tesla: return self.tesla
         try:
-            logger.info("twitter tesla getting token for garage")
-            token = self.garage.get_token()
-            logger.info("twitter tesla got %s token" % token.access_token)
-            vehicles = self.garage.get_vehicles()
-            logger.info("twitter tesla got %d vehicles" % len(vehicles))
-            self.tesla = vehicles[0]
+            if not self.tesla:
+                logger.info("twitter tesla getting token for garage")
+                token = self.garage.get_token()
+                logger.info("twitter tesla got %s token" % token.access_token)
+                vehicles = self.garage.get_vehicles()
+                logger.info("twitter tesla got %d vehicles" % len(vehicles))
+                self.tesla = vehicles[0]
+                pass
+            self.tesla.wake_up()
+            time.sleep(10)
         except Exception as e:
             logger.error("twitter tesla exception: " + str(e))
             logger.info("twitter tesla sleeping 10 minutes after the error")
             time.sleep(TWITTER_BREAK)
+            self.tesla = None
             pass
         return self.tesla if self.tesla else TeslaUnknown()
 
@@ -146,7 +155,7 @@ class TwitterStreamer(threading.Thread):
         if text.find("drive") == 0:
             reply = self.get_tesla().drive().replace("<br>", ", ")
             pass
-        if text.find("charge") != -1 and text.find("debug") != -1:
+        if text.find("debug") == 0:
             reply = self.get_tesla().debug()
             pass
         if text.find("charge") == 0:
@@ -171,12 +180,30 @@ class TwitterStreamer(threading.Thread):
         return
 
     def listen(self):
+        if not self.inited:
+            self.twitter = Api(consumer_key=CONSUMER_KEY,
+                           consumer_secret=CONSUMER_SECRET,
+                           access_token_key=self.oauth_token,
+                           access_token_secret=self.oauth_secret,
+                           sleep_on_rate_limit=False)
+            self.account_user_id  = self.twitter.GetUser(screen_name=TWITTER_ACCOUNT).id
+            logger.info("twitter expecting messages from %s" % self.account_user_id)
+            messages = self.twitter.GetDirectMessagesEventsList()
+            self.ids = [m.id for m in messages]
+            logger.info("twitter seen ids: %s" % str(self.ids[0:3]))
+            self.inited = True
+            return
+
         messages = self.twitter.GetDirectMessagesEventsList()
+        known_ids = self.ids
+        self.ids = [m.id for m in messages]
+        # logger.info("twitter seen ids: %s" % str(self.ids[0:3]))
+
+        # Update self.ids before processing the messages.
+        # In case error, killer message will be seen again.
         for m in messages:
-            if m.id not in self.ids:
+            if m.id not in known_ids:
                 self.on_direct_message(m)
                 pass
             pass
-        self.ids = [m.id for m in messages]
-        logger.info("twitter seen ids: %s" % str(self.ids[0:3]))
         return
