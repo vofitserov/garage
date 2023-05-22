@@ -28,6 +28,8 @@ logger = logging.getLogger("garage")
 class TelegramDoorController(threading.Thread):
     def __init__(self, door):
         threading.Thread.__init__(self)
+        self.application = None
+        self.loop = None
         logger.info("created telegram door controller")
         self.door = door
         self.phrases = open(SAY_PHRASES, "r").readlines()
@@ -98,6 +100,9 @@ class TelegramDoorController(threading.Thread):
         return
 
     def run(self):
+        # event loop is only created by default in the main thread
+        # this code does not run on the main thread, so we create
+        # our own event loop
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
         logger.info("setting up telegram bot: FosterCityDoorBot")
@@ -117,11 +122,6 @@ class TelegramDoorController(threading.Thread):
         job_minute = job_queue.run_repeating(self.notify, interval=NOTIFY, first=5)
         logger.info("setup is done: FosterCityDoorBot")
 
-        # event loop is only created by default in the main thread
-        # this code does not run on the main thread, so we create
-        # our own event loop
-        # loop = asyncio.new_event_loop()
-        # asyncio.set_event_loop(loop)
         logger.info("telegram polling forever...")
         self.application.run_polling(stop_signals=None)
         logger.info("...done polling telegram")
