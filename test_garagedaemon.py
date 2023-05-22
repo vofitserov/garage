@@ -1,4 +1,3 @@
-
 import unittest
 from mock import MagicMock
 from mock import patch
@@ -9,34 +8,34 @@ MockTime = MagicMock()
 modules = {
     "RPi": MockRPi,
     "RPi.GPIO": MockRPi.GPIO,
-    "logging" : MockLogging,
-    "logging.handlers" : MockLogging.handlers,
+#    "logging" : MockLogging,
+#    "logging.handlers" : MockLogging.handlers,
+#    "logging.handlers.RotatingFileHandler" : MockLogging.handlers.RotatingFileHandler,
     "time" : MockTime
 }
 
 patcher = patch.dict("sys.modules", modules)
 patcher.start()
 
-from door import *
+import garagedaemon
+import config
+import RPi.GPIO as GPIO
 
-class TestGarageDoor(unittest.TestCase):
+class TestGarageDaemon(unittest.TestCase):
     def setUp(self):
         MockRPi.GPIO.input.return_value = 0
         MockTime.time.return_value = 10000000
-        self.door = GarageDoor()
+        config.HTTP_HOST = "localhost"
+        config.HTTP_PORT = 8080
+        config.LOGFILE = "garagedaemon.log"
         return
 
     def runTest(self):
+        garagedaemon.main(["test", "test"])
         MockRPi.GPIO.setmode.assert_called_once_with(GPIO.BCM)
-        self.assertFalse(self.door.check())
-        status = self.door.status()
-        print(status)
-        self.assertEqual(status, "door was closed 10000000 secs ago")
         return
 
     def tearDown(self):
-        self.door.shutdown()
-        self.door = None
         return
 
 if __name__ == '__main__':
