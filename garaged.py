@@ -51,7 +51,6 @@ class GarageDaemon:
         self.bot.shutdown()
         logger.critical("staring door shutdown, gpio cleanup")
         self.door.shutdown()
-        time.sleep(10)
         logger.critical("the end")
         return
 
@@ -66,11 +65,12 @@ def main(argv):
     test = "test" in argv or "unittest" in sys.modules
     if not test:
         handler = logging.handlers.RotatingFileHandler(LOGFILE, maxBytes=100000, backupCount=5)
-        logger.addHandler(handler)
-        logger.info("logging to " + LOGFILE)
     else:
-        logger.info("running in test mode, logging to stderr only")
+        handler = logging.StreamHandler(sys.stderr)
         pass
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.info("logging to " + LOGFILE)
     try:
         garage_daemon = GarageDaemon()
         garage_daemon.run(test)
